@@ -5,5 +5,10 @@
 {% block page_content %}
 <div class="page-header">
     <h1>Hello, Welcome to this simple app showcase </h1>
+    <p>The date time is {{moment(current_date).format('LLL') }}<p>
+    <p>
+        That was {{ moment(current_date).fromNow(refresh=True) }}
+    </p>
+
 </div>
 {% endblock %}
