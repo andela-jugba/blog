@@ -8,6 +8,7 @@ from flask_wtf import Form
 from wtforms import StringField, SubmitField
 from wtforms.validators import Required
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate, MigrateCommand
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -20,6 +21,7 @@ app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 manager = Manager(app)
 bootstrap = Bootstrap(app)
 momemt = Moment(app)
+migrate = Migrate(app, db)
 
 
 class NameForm(Form):
@@ -50,6 +52,7 @@ def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role)
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
+manager.add_command('db', MigrateCommand)
 
 
 @app.route('/', methods=['GET', 'POST'])
