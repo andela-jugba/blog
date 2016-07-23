@@ -16,6 +16,7 @@ app = Flask(__name__)
 db = SQLAlchemy(app)
 app.config['SECRET_KEY'] = 'You will never guess what is in here'
 app.config['SQLALCHEMY_DATABASE_URI'] ='sqlite:///' + os.path.join(basedir, 'data.sqlite')
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 manager = Manager(app)
 bootstrap = Bootstrap(app)
 momemt = Moment(app)
@@ -50,17 +51,20 @@ class User(db.Model):
 def index():
     form = NameForm()
     if form.validate_on_submit():
-        old_name = session.get('name')
-        if old_name is not None and old_name != form.name.data:
-            flash('Looks like you changed your name')
-            session['name']= form.name.data
+        user = User.query.filter_by(username=form.name.data).first()
+        if user is None:
+            user = User(username=form.name.data)
+            db.session.add(user)
+            # db.session.commit() #not needed of the config sets SQLALCHEMY_COMMIT_ON_TEARDOWN == True
+            session['known'] = False
         else:
-            flash('Your name seems to remain the s')
+            session['known'] = True
+        session['name'] = form.name.data
         form.name.data=''
         return redirect(url_for('index'))
 
     user_agent = request.headers.get('User-Agent')
-    return render_template('index.html', current_date=datetime.utcnow(), form=form, name=session.get('name'))
+    return render_template('index.html', current_date=datetime.utcnow(), form=form, name=session.get('name'), known=session.get('known', False))
 
 @app.route('/user/<name>')
 def user(name):

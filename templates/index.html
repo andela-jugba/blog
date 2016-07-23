@@ -10,6 +10,11 @@
     <p>
         That was {{ moment(current_date).fromNow(refresh=True) }}
     </p>
+    {% if not known %}
+    <p>Please to meet you! </p>
+    {% else %}
+    <p>Nice to see you again</p>
+    {% endif %}
 
 </div>
 {{ wtf.quick_form(form) }}
